@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於我</title>
+    <style>
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(-45deg, #4e54c8, #ff9a8b, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientAnimation 15s ease infinite;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 800px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-pic {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .profile-pic img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #fff;
+        }
+        h1 {
+            text-align: center;
+            color: #4e54c8;
+        }
+        .motto {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .social-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #4e54c8;
+            text-decoration: none;
+        }
+        .music-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .music-link a {
+            display: inline-block;
+            margin: 0 10px;
+            color: #4e54c8;
+            text-decoration: none;
+        }
+        .mouse-trail {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="profile-pic">
+            <img src="https://avatars.githubusercontent.com/u/64603358?v=4" alt="PT Chen">
+        </div>
+        <h1>PT Chen</h1>
+        <div class="motto" id="motto"></div>
+        <div class="social-links">
+            <a href="https://www.facebook.com/profile.php?id=100070927291796" target="_blank">Facebook</a>
+            <a href="https://t.me/Chen_pt" target="_blank">Telegram</a>
+            <a href="mailto:hello@ptchen.tw">Email</a>
+            <a href="https://github.com/ptchen314" target="_blank">GitHub</a>
+        </div>
+        <div class="music-link">
+            <a href="https://youtu.be/fDsdUoRRXTE" target="_blank">聽聽我推薦的音樂吧!</a>
+        </div>
+    </div>
+
+    <script>
+        const mottos = [
+            "To be or not to be",
+            "在程式的海洋裡面不停溺水",
+            "Monday make me broken."
+        ];
+
+        function changeMotto() {
+            const mottoElement = document.getElementById('motto');
+            const randomIndex = Math.floor(Math.random() * mottos.length);
+            mottoElement.textContent = mottos[randomIndex];
+        }
+
+        changeMotto();
+        setInterval(changeMotto, 5000);
+
+        // 滑鼠追蹤效果
+        function createMouseTrail(e) {
+            const trail = document.createElement('div');
+            trail.className = 'mouse-trail';
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+
+            // 計算背景顏色的反色
+            const bgColor = getComputedStyle(document.body).backgroundColor;
+            const rgb = bgColor.match(/\d+/g);
+            const invertedColor = `rgb(${255 - rgb[0]}, ${255 - rgb[1]}, ${255 - rgb[2]})`;
+            trail.style.backgroundColor = invertedColor;
+
+            document.body.appendChild(trail);
+
+            setTimeout(() => {
+                trail.style.opacity = '0.6';
+            }, 0);
+
+            setTimeout(() => {
+                trail.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(trail);
+                }, 500);
+            }, 500);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() < 0.5) {
+                createMouseTrail(e);
+            }
+        });
+    </script>
+</body>
+</html>
