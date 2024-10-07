@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>關於我</title>
+    <title>About PT~</title>
     <style>
         @keyframes gradientAnimation {
             0% {
@@ -123,14 +123,12 @@
         changeMotto();
         setInterval(changeMotto, 5000);
 
-        // 滑鼠追蹤效果
         function createMouseTrail(e) {
             const trail = document.createElement('div');
             trail.className = 'mouse-trail';
             trail.style.left = e.clientX + 'px';
             trail.style.top = e.clientY + 'px';
 
-            // 計算背景顏色的反色
             const bgColor = getComputedStyle(document.body).backgroundColor;
             const rgb = bgColor.match(/\d+/g);
             const invertedColor = `rgb(${255 - rgb[0]}, ${255 - rgb[1]}, ${255 - rgb[2]})`;
