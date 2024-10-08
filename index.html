@@ -88,6 +88,25 @@
             opacity: 0;
             transition: opacity 0.5s;
         }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(-45deg, #2a2f6e, #8c5550, #14596e, #146e5e);
+                color: #f0f0f0;
+            }
+            .container {
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+            h1 {
+                color: #8e94f8;
+            }
+            .social-links a, .music-link a {
+                color: #8e94f8;
+            }
+            .profile-pic img {
+                border-color: #333;
+            }
+        }
     </style>
 </head>
 <body>
