@@ -32,6 +32,7 @@
             align-items: center;
             min-height: 100vh;
             overflow: hidden;
+            transition: background 0.3s ease, color 0.3s ease;
         }
         .container {
             max-width: 800px;
@@ -39,6 +40,7 @@
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
         }
         .profile-pic {
             text-align: center;
@@ -49,10 +51,12 @@
             height: 200px;
             border-radius: 50%;
             border: 5px solid #fff;
+            transition: border-color 0.3s ease;
         }
         h1 {
             text-align: center;
             color: #4e54c8;
+            transition: color 0.3s ease;
         }
         .motto {
             text-align: center;
@@ -68,6 +72,7 @@
             margin: 0 10px;
             color: #4e54c8;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
         .music-link {
             text-align: center;
@@ -78,6 +83,7 @@
             margin: 0 10px;
             color: #4e54c8;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
         .mouse-trail {
             position: absolute;
@@ -89,23 +95,21 @@
             transition: opacity 0.5s;
         }
 
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: linear-gradient(-45deg, #2a2f6e, #8c5550, #14596e, #146e5e);
-                color: #f0f0f0;
-            }
-            .container {
-                background-color: rgba(0, 0, 0, 0.8);
-            }
-            h1 {
-                color: #8e94f8;
-            }
-            .social-links a, .music-link a {
-                color: #8e94f8;
-            }
-            .profile-pic img {
-                border-color: #333;
-            }
+        body.dark-mode {
+            background: linear-gradient(-45deg, #2a2f6e, #8c5550, #14596e, #146e5e);
+            color: #f0f0f0;
+        }
+        body.dark-mode .container {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        body.dark-mode h1 {
+            color: #8e94f8;
+        }
+        body.dark-mode .social-links a, body.dark-mode .music-link a {
+            color: #8e94f8;
+        }
+        body.dark-mode .profile-pic img {
+            border-color: #333;
         }
     </style>
 </head>
@@ -173,6 +177,18 @@
                 createMouseTrail(e);
             }
         });
+
+        function checkDarkMode() {
+            const currentHour = new Date().getHours();
+            if (currentHour >= 18 || currentHour < 5) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        checkDarkMode();
+        setInterval(checkDarkMode, 60000); 
     </script>
 </body>
 </html>
