@@ -12,6 +12,8 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
+            overscroll-behavior: none;
+            touch-action: none; /* we handle swipes ourselves */
         }
 
         body {
@@ -263,8 +265,8 @@
     </div>
 
     <div class="legend">
-        <span><span class="btn-glyph btn-dir">✛</span> 選擇 Navigate</span>
-        <span><span class="btn-glyph btn-cross">✕</span> 開啟 Enter</span>
+        <span><span class="btn-glyph btn-dir">✛</span> 滑動／方向鍵 Navigate</span>
+        <span><span class="btn-glyph btn-cross">✕</span> 點按／Enter 開啟</span>
     </div>
 
     <script>
@@ -432,6 +434,51 @@
                 openItem(); e.preventDefault(); break;
         }
     });
+
+    /* ---------- touch / swipe navigation (mobile) ----------
+       swipe left/right = change category, swipe up/down = change item,
+       a plain tap still selects / opens the row. */
+    let touchX = 0, touchY = 0, touching = false, suppressClick = false;
+    const SWIPE_MIN = 36; // px before a drag counts as a swipe rather than a tap
+
+    document.addEventListener("touchstart", (e) => {
+        if (e.touches.length !== 1) { touching = false; return; }
+        touchX = e.touches[0].clientX;
+        touchY = e.touches[0].clientY;
+        touching = true;
+        suppressClick = false;
+    }, { passive: true });
+
+    document.addEventListener("touchend", (e) => {
+        if (!touching) return;
+        touching = false;
+        const t = e.changedTouches[0];
+        const dx = t.clientX - touchX;
+        const dy = t.clientY - touchY;
+        const absX = Math.abs(dx), absY = Math.abs(dy);
+        if (Math.max(absX, absY) < SWIPE_MIN) return; // a tap — let the click through
+
+        suppressClick = true; // a real swipe: cancel the click it would otherwise fire
+        const cat = CATEGORIES[catIndex];
+        if (absX > absY) {
+            // horizontal → change category
+            catIndex = dx < 0
+                ? (catIndex + 1) % CATEGORIES.length
+                : (catIndex - 1 + CATEGORIES.length) % CATEGORIES.length;
+            itemIndex = 0;
+        } else {
+            // vertical → change item within the category
+            itemIndex = dy < 0
+                ? (itemIndex + 1) % cat.items.length
+                : (itemIndex - 1 + cat.items.length) % cat.items.length;
+        }
+        render();
+    }, { passive: true });
+
+    // swallow the synthetic click that follows a swipe so it doesn't open a link
+    document.addEventListener("click", (e) => {
+        if (suppressClick) { e.preventDefault(); e.stopPropagation(); suppressClick = false; }
+    }, true);
 
     /* =========================================================
        Rotating motto (kept from the original page)
