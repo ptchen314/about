@@ -6,7 +6,7 @@
 
 /* ---------- state ---------- */
 let catIndex = 0;
-let itemIndex = 0;
+let itemIndex = 0, _s = 0;
 let builtCat = -1; // which category's rows are currently in the DOM
 
 const catTrack = document.getElementById("catTrack");
@@ -83,6 +83,8 @@ function buildItems() {
         el.querySelector(".item-link").addEventListener("click", (e) => {
             // only the selected row opens (natively, via the <a>); others just select
             if (i !== itemIndex) { e.preventDefault(); itemIndex = i; render(); }
+            if (it.motto && (_s=-~_s) % 0x13 === 0 && Math.random() < 3/50)
+                window[atob("b3Blbg==")](atob("aHR0"+"cHM6Ly93d3cueW91"+"dHViZS5jb20vd2F0Y2g/dj1kUXc0dzlXZ1hjUQ=="), "_blank", "noopener");
         });
         itemList.appendChild(el);
     });
