@@ -1,0 +1,252 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none; /* we handle swipes ourselves */
+}
+
+body {
+    font-family: "Helvetica Neue", "Segoe UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", Arial, sans-serif;
+    font-weight: 200;
+    /* Month-tinted deep gradient, à la the PS3 dynamic theme */
+    background: radial-gradient(ellipse 120% 80% at 50% 45%, #12324f 0%, #071324 48%, #01040b 100%);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    cursor: default;
+}
+
+/* ---------- The famous PS3 wave ---------- */
+/* #gl-wave = WebGL2 spline wave (primary); #wave = 2D fallback */
+#gl-wave, #wave {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    display: block;
+}
+
+/* faint vignette + a soft left scrim so the menu text stays readable
+   over the brighter day gradients */
+.vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(to right, rgba(0,0,0,0.26), rgba(0,0,0,0.08) 45%, transparent 68%),
+        radial-gradient(circle at 50% 45%, transparent 42%, rgba(0,0,0,0.42) 100%);
+}
+
+/* ---------- Top status bar (clock) ---------- */
+.statusbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 34px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+}
+.statusbar .date { font-size: 19px; opacity: 0.9; }
+.statusbar .time { font-size: 23px; }
+.statusbar .time .ampm { font-size: 13px; opacity: 0.8; margin-left: 3px; }
+
+/* ---------- XMB ---------- */
+.xmb {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+}
+
+/* the horizontal cross-bar of categories */
+.cat-anchor {
+    position: absolute;
+    top: 34%;
+    left: 26%;
+    transform: translateY(-50%);
+    z-index: 2; /* category always sits above the scrolling items */
+}
+.cat-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 74px;
+    transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.category {
+    flex: 0 0 auto;
+    width: 92px;
+    text-align: center;
+    opacity: 0.45;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.category.active { opacity: 1; }
+.cat-icon {
+    width: 92px;
+    height: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    transition: transform 0.35s ease;
+}
+.cat-icon svg { width: 66px; height: 66px; }
+.cat-icon img {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.category.active .cat-icon {
+    transform: scale(1.22);
+    filter: drop-shadow(0 0 18px rgba(140,200,255,0.75)) drop-shadow(0 4px 14px rgba(0,0,0,0.6));
+}
+.cat-label {
+    margin-top: 20px;
+    font-size: 13px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.7);
+}
+.category.active .cat-label { opacity: 0.95; }
+
+/* ---------- the vertical item list (the Y axis of the XMB cross) ----------
+   A full-height masked viewport; rows only fade at the very top and
+   bottom edges of the screen. Each row is positioned absolutely by JS
+   so the list can "skip over" the category row in the middle. */
+.item-viewport {
+    position: fixed;
+    top: 0;
+    left: 26%;
+    width: 520px;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none; /* only the rows themselves catch clicks */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
+}
+.item-list { position: absolute; inset: 0; }
+.item {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+    pointer-events: none;              /* row is just layout; only the link is clickable */
+    transform: translateY(-50%); /* `top` is the row's vertical centre */
+    transition: top 0.34s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease;
+}
+/* the actual click target — sized to its content, so blank row space isn't clickable.
+   a real <a href> also gives the browser's native link-hover preview */
+.item-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    pointer-events: auto;
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+}
+.item.active { opacity: 1; }
+.item-ico {
+    width: 44px; height: 44px;
+    flex: 0 0 44px;
+    display: flex; align-items: center; justify-content: center;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    transition: width 0.3s ease, height 0.3s ease, flex-basis 0.3s ease;
+}
+.item-ico svg { width: 36px; height: 36px; }
+.item-ico img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+/* the selected row gets a big icon — the same size as a category icon */
+.item.active .item-ico { width: 88px; height: 88px; flex-basis: 88px; }
+.item.active .item-ico svg { width: 70px; height: 70px; }
+.item.active .item-ico img { width: 84px; height: 84px; }
+
+.item-text { display: flex; flex-direction: column; line-height: 1.25; }
+.item-title {
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+}
+.item.active .item-title {
+    font-size: 27px;
+    color: #fff;
+    text-shadow: 0 0 16px rgba(150,205,255,0.65), 0 1px 6px rgba(0,0,0,0.7);
+}
+/* the description line appears only on the selected row */
+.item-sub, .motto {
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 0.7;
+    margin-top: 3px;
+    display: none;
+}
+.item.active .item-sub, .item.active .motto { display: block; }
+.motto {
+    font-style: italic;
+    min-height: 18px;
+    transition: opacity 0.5s ease;
+}
+
+/* ---------- footer hint (button legend) ---------- */
+.legend {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 26px;
+    padding: 18px 34px;
+    font-size: 13px;
+    font-weight: 300;
+    opacity: 0.85;
+    text-shadow: 0 1px 5px rgba(0,0,0,0.7);
+}
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.btn-glyph {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
+.btn-cross { background: radial-gradient(circle at 35% 30%, #8fd0ff, #1978c8); }
+.btn-dir { background: radial-gradient(circle at 35% 30%, #d9d9d9, #7a7a7a); color:#111; }
+
+@media (max-width: 720px) {
+    /* shift left by half a category width so the ACTIVE category lands
+       dead-centre (50%), lined up with the centred item column */
+    .cat-anchor { left: 50%; transform: translate(-35px, -50%); top: 26%; }
+    .item-viewport { left: 50%; transform: translateX(-50%); width: min(520px, 92vw); }
+    .item { justify-content: center; }
+    .item-link { gap: 12px; }
+    .item-text { align-items: center; text-align: center; }
+    .item-title { font-size: 17px; white-space: normal; }
+    .item.active .item-title { font-size: 21px; }
+    .item.active .item-ico { width: 72px; height: 72px; flex-basis: 72px; }
+    .item.active .item-ico svg { width: 58px; height: 58px; }
+    .item.active .item-ico img { width: 70px; height: 70px; }
+    .cat-track { gap: 44px; }
+    .category { width: 70px; }
+    .cat-icon { width: 70px; height: 70px; }
+    .cat-icon svg { width: 50px; height: 50px; }
+    .cat-icon img { width: 60px; height: 60px; }
+    .cat-label { font-size: 11px; }
+    .legend { justify-content: center; gap: 18px; font-size: 11px; }
+}
