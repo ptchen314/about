@@ -9,7 +9,7 @@ html, body {
 }
 
 body {
-    font-family: "Helvetica Neue", "Segoe UI", "Microsoft JhengHei", Arial, sans-serif;
+    font-family: "Helvetica Neue", "Segoe UI", "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", Arial, sans-serif;
     font-weight: 200;
     /* Month-tinted deep gradient, à la the PS3 dynamic theme */
     background: radial-gradient(ellipse 120% 80% at 50% 45%, #12324f 0%, #071324 48%, #01040b 100%);
