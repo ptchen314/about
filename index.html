@@ -151,12 +151,21 @@
             width: 100%;
             display: flex;
             align-items: center;
-            gap: 18px;
             opacity: 0.5;
-            pointer-events: auto;
-            cursor: pointer;
+            pointer-events: none;              /* row is just layout; only the link is clickable */
             transform: translateY(-50%); /* `top` is the row's vertical centre */
             transition: top 0.34s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.3s ease;
+        }
+        /* the actual click target — sized to its content, so blank row space isn't clickable.
+           a real <a href> also gives the browser's native link-hover preview */
+        .item-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 18px;
+            pointer-events: auto;
+            cursor: pointer;
+            color: inherit;
+            text-decoration: none;
         }
         .item.active { opacity: 1; }
         .item-ico {
@@ -233,7 +242,8 @@
                dead-centre (50%), lined up with the centred item column */
             .cat-anchor { left: 50%; transform: translate(-35px, -50%); top: 26%; }
             .item-viewport { left: 50%; transform: translateX(-50%); width: min(520px, 92vw); }
-            .item { justify-content: center; gap: 12px; }
+            .item { justify-content: center; }
+            .item-link { gap: 12px; }
             .item-text { align-items: center; text-align: center; }
             .item-title { font-size: 17px; white-space: normal; }
             .item.active .item-title { font-size: 21px; }
@@ -352,8 +362,8 @@
             <div class="cat-icon">${cat.iconImg ? `<img src="${cat.iconImg}" alt="">` : cat.icon}</div>
             <div class="cat-label">${cat.label}</div>`;
         el.addEventListener("click", () => {
-            if (i === catIndex) { openItem(); }
-            else { catIndex = i; itemIndex = 0; render(); }
+            if (i !== catIndex) { catIndex = i; itemIndex = 0; render(); } // category is a heading, not a link — never opens
+
         });
         catTrack.appendChild(el);
     });
@@ -371,15 +381,19 @@
             const descHTML = it.motto
                 ? `<div class="motto" id="motto"></div>`
                 : `<div class="item-sub">${it.sub || ""}</div>`;
+            const blank = it.link && !it.link.startsWith("mailto:");
+            const attrs = it.link ? ` href="${it.link}"${blank ? ` target="_blank" rel="noopener"` : ""}` : "";
             el.innerHTML = `
-                <div class="item-ico">${iconHTML}</div>
-                <div class="item-text">
-                    <div class="item-title">${it.title}</div>
-                    ${descHTML}
-                </div>`;
-            el.addEventListener("click", () => {
-                if (i === itemIndex) openItem();
-                else { itemIndex = i; render(); }
+                <a class="item-link"${attrs}>
+                    <div class="item-ico">${iconHTML}</div>
+                    <div class="item-text">
+                        <div class="item-title">${it.title}</div>
+                        ${descHTML}
+                    </div>
+                </a>`;
+            el.querySelector(".item-link").addEventListener("click", (e) => {
+                // only the selected row opens (natively, via the <a>); others just select
+                if (i !== itemIndex) { e.preventDefault(); itemIndex = i; render(); }
             });
             itemList.appendChild(el);
         });
