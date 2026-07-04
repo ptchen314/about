@@ -45,7 +45,7 @@ function selectCat(i) {
 
 function openItem() {
     const it = CATEGORIES[catIndex].items[itemIndex];
-    if (it && it.link) window.open(it.link, it.link.startsWith("mailto:") ? "_self" : "_blank");
+    if (it && it.link) window.open(it.link, it.link.startsWith("mailto:") ? "_self" : "_blank", "noopener,noreferrer");
 }
 
 /* ---------- build the category bar (once) ---------- */
