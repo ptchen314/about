@@ -554,6 +554,16 @@
        ========================================================= */
     (function initBackground() {
         const now = new Date();
+
+        // Wave speeds up on user interaction, then eases back to normal.
+        let speedMul = 1, boostEnd = 0;
+        const tick = () => {
+            if (performance.now() < boostEnd) return speedMul = 8;   // fast for 800ms
+            return speedMul += (1 - speedMul) * 0.04;                // then ease back
+        };
+        const kick = () => { boostEnd = performance.now() + 800; };
+        ["pointerdown", "keydown", "wheel", "touchstart"].forEach(
+            ev => window.addEventListener(ev, kick, { passive: true }));
         // Classic PS3 deep-blue background (RGB "default" gradient mode)
         if (window.SPLINE_SETTINGS) {
             window.SPLINE_SETTINGS.gradientPreset = "default";
@@ -597,7 +607,8 @@
                 const frame = (nowMs) => {
                     const dt = Math.max(0, (nowMs - prev) / 1000);
                     prev = nowMs;
-                    tSpline += dt; tPart += dt;
+                    const m = tick();
+                    tSpline += dt * m; tPart += dt * m;
                     spline.render(tSpline);
                     particles.render(tPart);
                     requestAnimationFrame(frame);
@@ -676,7 +687,7 @@
                     ctx.fillStyle = `hsla(${baseHue}, 40%, 96%, ${a})`; ctx.fill();
                 }
                 ctx.globalCompositeOperation = "source-over";
-                t++;
+                t += tick();
                 requestAnimationFrame(drawWave);
             };
             drawWave();
